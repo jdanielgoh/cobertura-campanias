@@ -1,5 +1,5 @@
 <script setup>
-import { idAleatorio } from "../utils";
+import { idAleatorio, } from "../utils";
 import { ref, onMounted,watch } from "vue";
 import { selectAll, select } from "d3-selection";
 import { scaleLinear, scaleTime } from "d3-scale";

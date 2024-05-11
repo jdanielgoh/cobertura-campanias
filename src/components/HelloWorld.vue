@@ -2,9 +2,8 @@
 import { ref, onMounted } from "vue";
 import { rollup, rollups, sum ,groups} from "d3";
 import lista_medios from "@/assets/datos/lista_medios.csv";
-import MonitoreoDiario from "@/components/graficas/MonitoreoDiario.vue";
+import MonitoreoDiarioStreams from "@/components/graficas/MonitoreoDiarioStreams.vue";
 const ref_lista_medios = ref(lista_medios);
-console.log(lista_medios[0]);
 const datos = ref([
   {
     fecha: "01/04/2024",
@@ -84,6 +83,7 @@ onMounted(() => {
     diccionario.SE = d[1].get("SE") ? d[1].get("SE") : 0;
     return diccionario;
   });
+  //console.log(datos.value.map(d=>d.fecha))
 });
 </script>
 
@@ -107,11 +107,12 @@ onMounted(() => {
         clave_fecha="fecha"
       />
     </SisdaiGraficas>
-    <MonitoreoDiario :datos="lista_medios"></MonitoreoDiario>
+    <MonitoreoDiarioStreams :datos="lista_medios"></MonitoreoDiarioStreams>
+
     <div class="contenedor">
-      <div class="col-3" v-for="(datillo,i) in datum_agrupado" :key="i">
+      <div class="col-3" v-for="(datillo,i) in datum_agrupado.slice(0,3)" :key="i">
         <p>{{ datillo[0] }}</p>
-        <MonitoreoDiario :datos="datillo[1]" :esc="1.5"></MonitoreoDiario>
+        <MonitoreoDiarioStreams :datos="datillo[1]" :esc="1.5"></MonitoreoDiarioStreams>
       </div>
     </div>
   </div>
