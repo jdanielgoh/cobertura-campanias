@@ -2,13 +2,13 @@
 import { idAleatorio, reordenamientoApilado } from "../utils";
 import { ref, onMounted, watch, toRefs } from "vue";
 import { selectAll, select } from "d3-selection";
-import { stack,areaRadial } from "d3-shape";
+import { stack, areaRadial } from "d3-shape";
 import { rollup, rollups, sum, groups, min } from "d3";
 import fechas from "@/assets/datos/fechas.json";
 import { scaleLinear, scaleTime } from "d3-scale";
 import { timeParse } from "d3-time-format";
-import {curveCatmullRom, stackOffsetSilhouette} from "d3-shape"
-const colores = { BXGR: "#318ccd", CSP: "#cd4a66", JAM: "#f77f00", SE: "gray" };
+import { curveCatmullRom, stackOffsetSilhouette } from "d3-shape";
+const colores = { BXGR: "#00468c", CSP: "#930b28", JAM: "#ff7900", SE: "gray" };
 const props = defineProps({
   id_grafica: {
     type: String,
@@ -24,7 +24,7 @@ const props = defineProps({
       {
         id: "BXGR",
         nombre: "X",
-        color: "#69aee0",
+        color: "#00468c",
       },
       {
         id: "CSP",
@@ -34,7 +34,7 @@ const props = defineProps({
       {
         id: "JAM",
         nombre: "X",
-        color: "#f77f00",
+        color: "#ff7900",
       },
       {
         id: "SE",
@@ -66,10 +66,8 @@ function calculaDimensiones() {
   ancho.value = contenedor.value.node().clientWidth;
   alto.value = ancho.value;
   escalaRadial.value = scaleLinear()
-    .domain([
-      0,5000,
-    ])
-    .range([ancho.value * 0.2, ancho.value * 0.49]);
+    .domain([0, 5000])
+    .range([ancho.value * 0.3, ancho.value * 0.1]);
   escalaAngular.value = scaleTime()
     .domain([
       conversionTemporalDia("01/03/2024"),
@@ -78,25 +76,29 @@ function calculaDimensiones() {
     .range([0, Math.PI * 2]);
 }
 function pintaGrafico() {
-  console.log(datos.value)
-  let data_full = fechas.map((d) => {
-    let datito = datos.value.filter((dd) => d == dd.FECHA_TESTIGO);
-    if (datito.length!=0) {
-      return datito;
-    } else
-      return {
-        NOMBRE_LOCUTOR: "",
-        FECHA_TESTIGO: d,
-        TIPO_VALORACION: "SIN VALORACIÓN",
-        CANDIDATO: "SE",
-        DURACION_SEGUNDOS: "0",
-        HORA_INICIO_PIEZA: "00:00:00",
-      };
-  }).flat();
+  let datos_valorados = datos.value.filter(
+    (d) => d.TIPO_VALORACION != "SIN VALORACIÓN"
+  );
+  let data_full = fechas
+    .map((d) => {
+      let datito = datos.value.filter((dd) => d == dd.FECHA_TESTIGO);
+      if (datito.length != 0) {
+        return datito;
+      } else
+        return {
+          NOMBRE_LOCUTOR: "",
+          FECHA_TESTIGO: d,
+          TIPO_VALORACION: "SIN VALORACIÓN",
+          CANDIDATO: "SE",
+          DURACION_SEGUNDOS: "0",
+          HORA_INICIO_PIEZA: "00:00:00",
+        };
+    })
+    .flat();
 
   let datos_apilados = stack()
-  //.offset(stackOffsetSilhouette)
-.keys(variables.value.map((d) => d.id))(
+    .offset(stackOffsetSilhouette)
+    .keys(variables.value.map((d) => d.id))(
     rollups(
       data_full,
       (v) =>
@@ -118,25 +120,47 @@ function pintaGrafico() {
       return diccionario;
     })
   );
-  console.log(datos_apilados)
   datos_apilados = reordenamientoApilado(datos_apilados);
-  
-  var areas = areaRadial()
-  .innerRadius(d=>escalaRadial.value(d[0]))
-  .outerRadius(d=>escalaRadial.value(d[1]))
-  .angle(d=>escalaAngular.value(conversionTemporalDia(d.data.fecha)))
-  .curve(curveCatmullRom)
 
-  
-  grupo_contenedor.value.selectAll("pathcs")
+  var areas = areaRadial()
+    .innerRadius((d) => escalaRadial.value(d[0]))
+    .outerRadius((d) => escalaRadial.value(d[1]))
+    .angle((d) => escalaAngular.value(conversionTemporalDia(d.data.fecha)))
+    .curve(curveCatmullRom);
+
+  grupo_contenedor.value
+    .selectAll("pathcs")
     .data(datos_apilados)
     .enter()
     .append("path")
     .attr("d", areas)
-    .attr("fill",d=>colores[d.key])
-    .attr("fill-opacity",.7)
-
-    
+    .attr("fill", (d) => colores[d.key])
+    .attr("fill-opacity", 0.7);
+  grupo_contenedor.value
+    .selectAll("valoraciones")
+    .data(datos_valorados)
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => 
+      (d.TIPO_VALORACION=="NEGATIVA" ? escalaRadial.value(0) : escalaRadial.value(5000)) *
+        Math.cos(
+          -0.5 * Math.PI +
+            escalaAngular.value(conversionTemporalDia(d.FECHA_TESTIGO))
+        )
+    )
+    .attr("cy", (d) => 
+      (d.TIPO_VALORACION=="NEGATIVA" ? escalaRadial.value(0) : escalaRadial.value(5000)) *
+        Math.sin(
+          -0.5 * Math.PI +
+            escalaAngular.value(conversionTemporalDia(d.FECHA_TESTIGO))
+        )
+    )
+    .attr(
+      "r",
+      (d) => (props.esc * ancho.value * Math.sqrt(d.DURACION_SEGUNDOS)) / 500
+    )
+    .attr("fill-opacity", 0.4)
+    .attr("fill", (d) => colores[d.CANDIDATO]);
 }
 watch(() => datos.value, pintaGrafico);
 </script>

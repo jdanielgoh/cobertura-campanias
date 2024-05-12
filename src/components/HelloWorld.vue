@@ -107,10 +107,9 @@ onMounted(() => {
         clave_fecha="fecha"
       />
     </SisdaiGraficas>
-    <MonitoreoDiarioStreams :datos="lista_medios"></MonitoreoDiarioStreams>
 
     <div class="contenedor">
-      <div class="col-3" v-for="(datillo,i) in datum_agrupado.slice(0,3)" :key="i">
+      <div class="col-3" v-for="(datillo,i) in datum_agrupado" :key="i">
         <p>{{ datillo[0] }}</p>
         <MonitoreoDiarioStreams :datos="datillo[1]" :esc="1.5"></MonitoreoDiarioStreams>
       </div>
