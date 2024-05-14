@@ -243,7 +243,6 @@ function panelesEnUso() {
       </div>
     </div>
 
-    <ContenedorVisAtribuciones />
   </div>
 </template>
 <style scoped lang="scss">

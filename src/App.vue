@@ -1,25 +1,50 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import "sisdai-css/src/eni.scss"
+import HelloWorld from "./components/HelloWorld.vue";
+import "sisdai-css/src/eni.scss";
 </script>
 
 <template>
-  
+  <div class="contenedor ancho-lectura">
+    <h1>
+      EN UNA DEMOCRACIA <br />
+      <span class="caben"
+        ><span>¿</span>caben todas las voces<span>?</span></span
+      >
+    </h1>
+    <p>
+      En esta herramienta se visualiza el tiempo que han destinado los medios de
+      radio y TV a la difusión sobre cada candidatx, así como los juicios de
+      valor, estereotipos y actos violentos que han emitido a través del proceso
+      de campañas electorales.
+    </p>
+    <p>
+      Aquí podrás consultar la cobertura que ha hecho tu presentadora o
+      presentador de noticias favorito,<strong> a qué candidatxs han mantenido al centro de la opinión</strong>, así como confirmar por qué desconfías
+      tanto de ______.
+    </p>
+  </div>
   <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped lang="scss">
 @import "node_modules/sisdai-css/src/eni.scss";
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 50px;
+  span.caben {
+    font-size: 44px;
+
+    font-weight: 300;
+    span {
+      color: rgb(143, 143, 143);
+    }
+  }
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+p{
+  strong{
+    background: rgb(196, 250, 101);
+  }
 }
 </style>

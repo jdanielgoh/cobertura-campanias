@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { rollup, rollups, sum ,groups} from "d3";
+import { ref, onMounted, computed } from "vue";
+import { rollup, rollups, sum, groups } from "d3";
 import lista_medios from "@/assets/datos/lista_medios.csv";
-import MonitoreoDiarioStreams from "@/components/graficas/MonitoreoDiarioStreams.vue";
-const ref_lista_medios = ref(lista_medios);
+import ResumenNoticiero from "@/components/graficas/ResumenNoticiero.vue";
+import DetalleNoticiero from "@/components/graficas/DetalleNoticiero.vue";
+
+const datos_modal = ref([]);
+const miModal = ref();
 const datos = ref([
   {
     fecha: "01/04/2024",
@@ -38,37 +41,47 @@ const variables = ref([
 ]);
 const datum = ref([
   {
-    NOMBRE_LOCUTOR:
+    NOMBRE_NOTICIERO:
       "EMANUEL SIBILLA OROPEZA, ANTONY MENDOZA, HUGO TRIANO GÓMEZ, MARICHUY GARCÍA",
     FECHA_TESTIGO: "21/04/2024",
     TIPO_VALORACION: "SIN VALORACIÓN",
     CANDIDATO: "BXGR",
-    DURACION_SEGUNDOS: 12,
+    DURACION_MINUTOS: 12,
   },
 ]);
 const datum_agrupado = ref([
-["",[
   {
-    NOMBRE_LOCUTOR:
-      "EMANUEL SIBILLA OROPEZA, ANTONY MENDOZA, HUGO TRIANO GÓMEZ, MARICHUY GARCÍA",
-    FECHA_TESTIGO: "21/04/2024",
-    TIPO_VALORACION: "SIN VALORACIÓN",
-    CANDIDATO: "BXGR",
-    DURACION_SEGUNDOS: 12,
+    nombre: "",
+    datos: [
+      {
+        NOMBRE_NOTICIERO:
+          "EMANUEL SIBILLA OROPEZA, ANTONY MENDOZA, HUGO TRIANO GÓMEZ, MARICHUY GARCÍA",
+        FECHA_TESTIGO: "21/04/2024",
+        TIPO_VALORACION: "SIN VALORACIÓN",
+        CANDIDATO: "BXGR",
+        DURACION_MINUTOS: 12,
+      },
+    ],
   },
-]]
-])
-
+]);
+const listaFiltrada = computed(() => {
+  return datum_agrupado.value.filter((d) =>
+    d.nombre?.toLowerCase()?.includes(busqueda.value.toLowerCase())
+  );
+});
+const busqueda = ref("");
 onMounted(() => {
   datum.value = lista_medios;
-  datum_agrupado.value = groups(lista_medios,d=>d.NOMBRE_LOCUTOR).sort((a,b)=>(b[1].length - a[1].length))
+  datum_agrupado.value = groups(lista_medios, (d) => d.NOMBRE_NOTICIERO)
+    .sort((a, b) => b[1].length - a[1].length)
+    .map((d) => ({ nombre: d[0], datos: d[1] }));
 
   datos.value = rollups(
     datum.value,
     (v) =>
       rollup(
         v,
-        (vv) => sum(vv.map((ddd) => ddd.DURACION_SEGUNDOS)),
+        (vv) => sum(vv.map((ddd) => ddd.DURACION_MINUTOS)),
         (dd) => dd.CANDIDATO
       ),
     (d) => d.FECHA_TESTIGO
@@ -85,18 +98,23 @@ onMounted(() => {
   });
   //console.log(datos.value.map(d=>d.fecha))
 });
+function clickResumen(d) {
+  miModal.value?.abrirModal();
+  datos_modal.value = d;
+}
 </script>
 
 <template>
-  <div class="contenedor flex">
+  <div class="contenedor">
     <SisdaiGraficas
-      :titulo_eje_y="'Segundos'"
+      :titulo_eje_y="'Minutos'"
       :titulo_eje_x="'Fecha'"
-      :margenes="{ arriba: 30, abajo: 70, derecha: 30, izquierda: 90 }"
+      :margenes="{ arriba: 30, abajo: 50, derecha: 20, izquierda: 40 }"
     >
       <template #panel-encabezado-vis>
         <p class="vis-titulo-visualizacion">
-          Segundos dedicados a cada candidatx
+          Minutos dedicados a cada candidatx en todos los programas de radio y
+          TV
         </p>
       </template>
       <SisdaiAreasApiladasOrdenadas
@@ -107,12 +125,39 @@ onMounted(() => {
         clave_fecha="fecha"
       />
     </SisdaiGraficas>
+    <div class="contenedor ancho-fijo">
+      <div class="search-wrapper">
+        <label for="buscador">Busca un noticiero de radio o TV </label>
 
-    <div class="contenedor">
-      <div class="col-3" v-for="(datillo,i) in datum_agrupado" :key="i">
-        <p>{{ datillo[0] }}</p>
-        <MonitoreoDiarioStreams :datos="datillo[1]" :esc="1.5"></MonitoreoDiarioStreams>
+        <input
+          id="buscador"
+          type="text"
+          v-model="busqueda"
+          placeholder="Busca tu programa de radio o TV"
+        />
       </div>
+    </div>
+    <div class="contenedor ancho-fijo">
+      <div class="flex contenedor">
+        <button
+          class="columna-4 boton-secundario"
+          v-for="datillo in datum_agrupado"
+          :key="datillo.nombre"
+          @click="clickResumen(datillo.datos)"
+          v-show="
+            datillo?.nombre?.toLowerCase()?.includes(busqueda.toLowerCase())
+          "
+        >
+          <p>{{ datillo.nombre }}</p>
+          <ResumenNoticiero :datos="datillo.datos"></ResumenNoticiero>
+        </button>
+      </div>
+      <SisdaiModal ref="miModal" tamanioModal="pantalla-completa">
+        <DetalleNoticiero
+          :datos="datos_modal"
+          :variables="variables"
+        ></DetalleNoticiero>
+      </SisdaiModal>
     </div>
   </div>
 </template>
@@ -121,8 +166,13 @@ onMounted(() => {
 .contenedor {
   display: flex;
   flex-flow: row wrap;
-  div.col-3 {
-    width: 33%;
-  }
+}
+button.columna-4 {
+  width: calc(25% - 24px);
+  min-width: calc(25% - 24px);
+  display: block;
+}
+input[type="text"] {
+  background: white;
 }
 </style>
