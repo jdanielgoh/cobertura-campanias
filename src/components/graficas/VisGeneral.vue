@@ -213,7 +213,8 @@ function creaFuerzas() {
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", radio_nodos.value)
-            .on("mouseover", hoverNodo);
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo);
         },
         (update) => {
           update
@@ -225,7 +226,9 @@ function creaFuerzas() {
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
-            .select("circle").on("mouseover", hoverNodo)
+            .select("circle")
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo)
 
             .select("fill", (d) => dict_color.value[d.CANDIDATO])
             .attr("cx", 0)
@@ -290,7 +293,8 @@ function creaFuerzas() {
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", radio_nodos.value)
-            .on("mouseover", hoverNodo);
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo);
         },
         (update) => {
           update
@@ -302,7 +306,9 @@ function creaFuerzas() {
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
-            .select("circle").on("mouseover", hoverNodo)
+            .select("circle")
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo)
             .select("fill", (d) => dict_color.value[d.CANDIDATO])
 
             .attr("cx", 0)
@@ -368,7 +374,8 @@ function creaFuerzas() {
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", radio_nodos.value)
-            .on("mouseover", hoverNodo);
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo);
         },
         (update) => {
           update
@@ -380,7 +387,9 @@ function creaFuerzas() {
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
-            .select("circle").on("mouseover", hoverNodo)
+            .select("circle")
+            .on("mouseover", hoverNodo)
+            .on("mouseout", outNodo)
             .select("fill", (d) => dict_color.value[d.CANDIDATO])
 
             .attr("cx", 0)
@@ -434,15 +443,17 @@ function tickedBXGR() {
   });
 }
 function hoverNodo(e, d) {
-  console.log(d.ID_NOTICIERO)
+  console.log(d.ID_NOTICIERO);
   let x = e.layerX > ancho.value * 0.5 ? e.layerX - 210 : e.layerX + 10;
   select(this).attr("fill-opacity", "1");
-  globo.value
+  globo.value.style("visibility","visible")
     .style("left", x + "px")
     .style("top", e.layerY + 10 + "px")
     .html(`<p>${d[categoria_seleccionada.value]}</p>`);
 }
-
+function outNodo(){
+  globo.value.style("visibility","hidden")
+}
 function formateaDatosTotales() {
   var rellenafechas = fechas
     .map((d) => {
