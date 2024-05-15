@@ -94,9 +94,9 @@ function formateaData(){
         return datito;
       } else
         return {
-          NOMBRE_NOTICIERO: "",
+          ID_NOTICIERO: "",
           FECHA_TESTIGO: d,
-          TIPO_VALORACION: "SIN VALORACIÓN",
+          TIPO_VALORACION: "S",
           CANDIDATO: "SE",
           DURACION_MINUTOS: "0",
           HORA_INICIO_PIEZA: "00:00:00",

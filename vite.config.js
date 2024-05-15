@@ -14,7 +14,7 @@ export default defineConfig({
       }
     }*/
   },
-  base: '/',
+  base: '/en-una-democracia-caben-todas-las-voces/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

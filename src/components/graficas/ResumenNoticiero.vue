@@ -10,24 +10,24 @@ const props = defineProps({
 });
 const valoraciones = computed(() => {
   let datos_valorados = props.datos.filter(
-    (d) => d.TIPO_VALORACION != "SIN VALORACIÓN"
+    (d) => d.TIPO_VALORACION != "S"
   );
   let default_data = {
     JAM: {
-      POSITIVA: 0,
-      NEGATIVA: 0,
+      P: 0,
+      N: 0,
     },
     BXGR: {
-      POSITIVA: 0,
-      NEGATIVA: 0,
+      P: 0,
+      N: 0,
     },
     CSP: {
-      POSITIVA: 0,
-      NEGATIVA: 0,
+      P: 0,
+      N: 0,
     },
     SE: {
-      POSITIVA: 0,
-      NEGATIVA: 0,
+      P: 0,
+      N: 0,
     },
   };
   if (datos_valorados.length != 0) {

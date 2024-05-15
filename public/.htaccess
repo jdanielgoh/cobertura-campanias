@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+
+    RewriteEngine On
+    RewriteBase /en-una-democracia-caben-todas-las-voces/
+    RewriteRule ^/en-una-democracia-caben-todas-las-voces/index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /en-una-democracia-caben-todas-las-voces/index.html [L]
+</IfModule>
