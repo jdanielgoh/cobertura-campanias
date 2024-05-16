@@ -1,9 +1,13 @@
 <script setup>
 import HelloWorld from "./components/HelloWorld.vue";
+import Header from "./components/ui/Header.vue";
+import Footer from "./components/ui/Footer.vue";
+
 import "sisdai-css/src/eni.scss";
 </script>
 
 <template>
+  <Header></Header>
   <div class="contenedor ancho-lectura">
     <h1>
       EN UNA DEMOCRACIA <br />
@@ -24,16 +28,25 @@ import "sisdai-css/src/eni.scss";
     </p>
   </div>
   <HelloWorld msg="Vite + Vue" />
+  <Footer></Footer>
 </template>
 
 <style scoped lang="scss">
-@import "node_modules/sisdai-css/src/eni.scss";
 
+@import "node_modules/sisdai-css/src/eni.scss";
+a.marca{
+  font-family: 'Roboto Mono', monospace!important;
+
+}
 h1 {
+  font-family:"Newsreader", serif!important;
+
   text-align: center;
   font-weight: 700;
   font-size: 50px;
-  span.caben {
+  span.caben {  
+    font-family:"Newsreader", serif!important;
+
     font-size: 44px;
 
     font-weight: 300;

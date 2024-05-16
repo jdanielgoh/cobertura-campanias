@@ -18,7 +18,7 @@ import {
   forceManyBody,
   forceCollide,
 } from "d3-force";
-import { curveCatmullRom, stackOffsetSilhouette } from "d3-shape";
+import medios from "@/assets/datos/diccionario_medios.json";
 const dict_opacity = {
   P: 0.7,
   N: 0.3,
@@ -90,7 +90,13 @@ const simulacionCSP = ref();
 const radio_nodos = ref(1);
 const datos_apilados = ref(),
   data_full = ref([{}]),
-  categoria_seleccionada = ref("DESCRIPCION_ESTEREOTIPO_VULNERABILIDAD"),
+  categoria_seleccionada = ref("DESCRIPCION_POSITIVA"),
+  categorias = ref([
+    { id: "DESCRIPCION_ESTEREOTIPO_GENERAL" },
+    { id: "DESCRIPCION_POSITIVA" },
+    { id: "DESCRIPCION_NEGATIVA" },
+    { id: "DESCRIPCION_ENFOQUE" },
+  ]),
   nodataJAM = ref([{ FECHA_TESTIGO: "" }]),
   nodataCSP = ref([{ FECHA_TESTIGO: "" }]),
   nodataBXGR = ref([{ FECHA_TESTIGO: "" }]);
@@ -123,6 +129,9 @@ onMounted(() => {
     calculaDimensiones();
     //lasValoraciones.value = formateaDataValoraciones();
     creaVis();
+  });
+  watch(categoria_seleccionada, () => {
+    creaFuerzas();
   });
   window.addEventListener("resize", reescalanding);
 });
@@ -177,20 +186,22 @@ const { datos, variables } = toRefs(props);
 
 function creaVis() {
   if (data_full.value.length <= 1) return;
-  creaFuerzas();
   creaAreas();
   creaBarras();
+  creaFuerzas();
+
 }
 function creaFuerzas() {
-  radio_nodos.value = ancho.value * 0.005;
+  radio_nodos.value = Math.sqrt(ancho.value * 0.01);
   let nodata = datos.value.filter((d) => d[categoria_seleccionada.value]);
   {
     nodataJAM.value = nodata.filter((d) => d.CANDIDATO == "JAM");
+    
+    simulacionJAM.value?.stop();
     nodataJAM.value.forEach((d) => {
       d.x = escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
       d.y = 500 * (0.5 - Math.random());
     });
-    simulacionJAM.value?.stop();
     grupoJAM.value
       .selectAll("g.nodo")
       .data(nodataJAM.value)
@@ -212,28 +223,33 @@ function creaFuerzas() {
             .attr("fill-opacity", 0.7)
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value)
+            .attr("r", (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value)
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo);
         },
         (update) => {
-          update
-            .attr("class", "nodo")
-            .attr(
+       
+          let gpo = update.call(update_=>{
+            update_ .attr(
               "transform",
               (d) =>
                 `translate(${escalaTemporal.value(
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
-            .select("circle")
+          })
+           
+          gpo.select("circle")
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo)
 
-            .select("fill", (d) => dict_color.value[d.CANDIDATO])
+            .attr("fill", (d) => dict_color.value[d.CANDIDATO])
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value);
+            .attr(
+              "r",
+              (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value
+            );
         },
         (exit) => {
           exit
@@ -253,7 +269,12 @@ function creaFuerzas() {
 
     simulacionJAM.value = forceSimulation(nodataJAM.value)
       .force("charge", forceManyBody().strength(-0.1))
-      .force("collision", forceCollide().radius(radio_nodos.value * 1.1))
+      .force(
+        "collision",
+        forceCollide().radius(
+          (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value * 1.1
+        )
+      )
       .force(
         "x",
         forceX().x((d) =>
@@ -261,8 +282,7 @@ function creaFuerzas() {
         )
       )
       .force("y", forceY().y(0).strength(0.1))
-
-      .on("tick", tickedJAM);
+      .on("tick", tickedJAM).restart();
   }
   {
     nodataBXGR.value = nodata.filter((d) => d.CANDIDATO == "BXGR");
@@ -292,7 +312,7 @@ function creaFuerzas() {
             .attr("fill-opacity", 0.7)
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value)
+            .attr("r", (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value)
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo);
         },
@@ -309,11 +329,14 @@ function creaFuerzas() {
             .select("circle")
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo)
-            .select("fill", (d) => dict_color.value[d.CANDIDATO])
+            .attr("fill", (d) => dict_color.value[d.CANDIDATO])
 
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value);
+            .attr(
+              "r",
+              (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value
+            );
         },
         (exit) => {
           exit
@@ -334,7 +357,12 @@ function creaFuerzas() {
 
     simulacionBXGR.value = forceSimulation(nodataBXGR.value)
       .force("charge", forceManyBody().strength(-0.1))
-      .force("collision", forceCollide().radius(radio_nodos.value * 1.1))
+      .force(
+        "collision",
+        forceCollide().radius(
+          (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value * 1.1
+        )
+      )
       .force(
         "x",
         forceX().x((d) =>
@@ -342,8 +370,7 @@ function creaFuerzas() {
         )
       )
       .force("y", forceY().y(0).strength(0.1))
-
-      .on("tick", tickedBXGR);
+      .on("tick", tickedBXGR).restart();
   }
   {
     nodataCSP.value = nodata.filter((d) => d.CANDIDATO == "CSP");
@@ -373,7 +400,7 @@ function creaFuerzas() {
             .attr("fill-opacity", 0.7)
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value)
+            .attr("r", (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value)
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo);
         },
@@ -390,11 +417,14 @@ function creaFuerzas() {
             .select("circle")
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo)
-            .select("fill", (d) => dict_color.value[d.CANDIDATO])
+            .attr("fill", (d) => dict_color.value[d.CANDIDATO])
 
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("r", radio_nodos.value);
+            .attr(
+              "r",
+              (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value
+            );
         },
         (exit) => {
           exit
@@ -415,7 +445,12 @@ function creaFuerzas() {
 
     simulacionCSP.value = forceSimulation(nodataCSP.value)
       .force("charge", forceManyBody().strength(-0.1))
-      .force("collision", forceCollide().radius(radio_nodos.value * 1.1))
+      .force(
+        "collision",
+        forceCollide().radius(
+          (d) => Math.sqrt(d.DURACION_MINUTOS) * radio_nodos.value * 1.1
+        )
+      )
       .force(
         "x",
         forceX().x((d) =>
@@ -424,7 +459,7 @@ function creaFuerzas() {
       )
       .force("y", forceY().y(0).strength(0.1))
 
-      .on("tick", tickedCSP);
+      .on("tick", tickedCSP).restart();
   }
 }
 function tickedJAM() {
@@ -446,13 +481,17 @@ function hoverNodo(e, d) {
   console.log(d.ID_NOTICIERO);
   let x = e.layerX > ancho.value * 0.5 ? e.layerX - 210 : e.layerX + 10;
   select(this).attr("fill-opacity", "1");
-  globo.value.style("visibility","visible")
+  globo.value
+    .style("visibility", "visible")
     .style("left", x + "px")
     .style("top", e.layerY + 10 + "px")
-    .html(`<p>${d[categoria_seleccionada.value]}</p>`);
+    .html(`<p><b>${medios[d.ID_NOTICIERO]}</b><br/>${d.FECHA_TESTIGO} |${Math.round(10 * d.DURACION_MINUTOS)/10} minutos </p>
+    <p>${d[categoria_seleccionada.value]}</p>`);
 }
-function outNodo(){
-  globo.value.style("visibility","hidden")
+function outNodo() {
+  globo.value.style("visibility", "hidden");
+  select(this).attr("fill-opacity", ".7");
+
 }
 function formateaDatosTotales() {
   var rellenafechas = fechas
@@ -709,43 +748,50 @@ defineExpose({
 </script>
 
 <template>
-  <div class="vis-general contenedor" id="vis-general">
-    <div class="globo"></div>
-    <svg
-      class="elSVG"
-      :width="ancho + margen.derecha + margen.izquierda"
-      :height="alto_"
-    >
-      <g
-        class="grupo-bxgr"
-        :transform="`translate(${margen.izquierda},${alto * 0.16})`"
-      ></g>
-      <g
-        class="grupo-jam"
-        :transform="`translate(${margen.izquierda},${alto * 0.26})`"
-      ></g>
-      <g
-        class="grupo-csp"
-        :transform="`translate(${margen.izquierda},${alto * 0.36})`"
-      ></g>
-      <g
-        class="eje-x-abajo"
-        :transform="`translate(${margen.izquierda},${margen.arriba + alto})`"
-      ></g>
-      <g
-        class="eje-y-izquierda total"
-        :transform="`translate(${margen.izquierda},${margen.arriba + 0})`"
-      ></g>
+  <div>
+    <select name="categoria" id="categoria" v-model="categoria_seleccionada">
+      <option :value="cat.id" v-for="cat in categorias" :key="cat.id">
+        {{ cat.id }}
+      </option>
+    </select>
+    <div class="vis-general contenedor" id="vis-general">
+      <div class="globo"></div>
+      <svg
+        class="elSVG"
+        :width="ancho + margen.derecha + margen.izquierda"
+        :height="alto_"
+      >
+        <g
+          class="grupo-bxgr"
+          :transform="`translate(${margen.izquierda},${alto * 0.16})`"
+        ></g>
+        <g
+          class="grupo-jam"
+          :transform="`translate(${margen.izquierda},${alto * 0.26})`"
+        ></g>
+        <g
+          class="grupo-csp"
+          :transform="`translate(${margen.izquierda},${alto * 0.36})`"
+        ></g>
+        <g
+          class="eje-x-abajo"
+          :transform="`translate(${margen.izquierda},${margen.arriba + alto})`"
+        ></g>
+        <g
+          class="eje-y-izquierda total"
+          :transform="`translate(${margen.izquierda},${margen.arriba + 0})`"
+        ></g>
 
-      <g
-        :transform="`translate(${margen.izquierda},${margen.arriba})`"
-        class="grupo-contenedor"
-      ></g>
-      <g
-        class="grupo-nodos"
-        :transform="`translate(${margen.izquierda},${alto * 0.3})`"
-      ></g>
-    </svg>
+        <g
+          :transform="`translate(${margen.izquierda},${margen.arriba})`"
+          class="grupo-contenedor"
+        ></g>
+        <g
+          class="grupo-nodos"
+          :transform="`translate(${margen.izquierda},${alto * 0.3})`"
+        ></g>
+      </svg>
+    </div>
   </div>
 </template>
 <style lang="scss">
@@ -759,6 +805,8 @@ defineExpose({
     padding: 4px;
     width: 200px;
     background-color: #e7e7e769;
+    font-size: 14px;
+    visibility: hidden;
   }
   svg {
     .vis-linea-ejes {

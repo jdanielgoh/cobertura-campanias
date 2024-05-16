@@ -1,7 +1,7 @@
 :root {
   --tipografia-color:black;
   --borde-color-2: gray;
-  --pagina-fondo:#d1cfca;
+  --pagina-fondo:#cdcdcd;
   --tipografia-familia: "Newsreader", serif;
   --input-fondo:white;
   --boton-secundario-focus-fondo: transparent;
@@ -14,8 +14,8 @@
   --boton-secundario-focus-borde:transparent;
   --contenedor-vis-alto-minimo-vis:0;
 }
-body * {
-  font-family:"Newsreader", serif!important;
+body *:not(a.marca) {
+  font-family:"Montserrat", serif;
 }
 
 
