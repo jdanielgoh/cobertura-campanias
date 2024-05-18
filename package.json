@@ -12,9 +12,7 @@
     "@trevoreyre/autocomplete-vue": "^3.0.2",
     "d3": "^7.9.0",
     "sass": "^1.71.0",
-    "sisdai-componentes": "git+https://codigo.conahcyt.mx/sisdai/sisdai-componentes#v2.15.1",
     "sisdai-css": "git+https://codigo.conahcyt.mx/sisdai/sisdai-css#v0.48.0",
-    "sisdai-graficas": "git+https://codigo.conahcyt.mx/sisdai/sisdai-graficas#develop",
     "vue": "^3.4.21"
   },
   "devDependencies": {
