@@ -1,7 +1,20 @@
-# Vue 3 + Vite
+# En una democracia ¿Caben todas las voces?
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+En esta herramienta se visualiza el tiempo que han destinado diariamente los medios de radio y TV a la difusión sobre cada candidatx, así como los juicios de valor, estereotipos y enfoques que han emitido a través del proceso de campañas electorales.
 
-## Recommended IDE Setup
+Se desarrolló con Vue 3 en Vite y se usó la biblioteca de d3 para las visualizaciones. También se utlilizó la biblioteca de estilos [sisdai-css](https://codigo.conahcyt.mx/sisdai/sisdai-css)
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (previously Volar) and disable Vetur
+## Configuracion e instalación
+```
+npm install
+```
+
+### Levantar servidor local
+```
+npm run dev
+```
+
+### Compilar para producción
+```
+npm run build
+```
