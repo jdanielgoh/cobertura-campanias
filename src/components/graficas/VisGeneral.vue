@@ -38,32 +38,33 @@ const escala_candidatas = ref({
 const props = defineProps({
   datos: { type: Array },
   ancho_barra: { default: 0.2 },
+  categoria: { default: "FRASE_POSITIVA" },
   variables: {
     default: () => [
       {
         id: "BXGR",
-        nombre: "X",
+        nombre: "Xóchitl Gálvez",
         color: "#00468c",
       },
       {
         id: "CSP",
-        nombre: "X",
+        nombre: "Claudia Sheinbaum",
         color: "#930b28",
       },
       {
         id: "JAM",
-        nombre: "X",
+        nombre: "Jorge Máynez",
         color: "#ff7900",
       },
       {
         id: "SE",
-        nombre: "X",
+        nombre: "Sin especificar",
         color: "gray",
       },
     ],
   },
 });
-const margen = ref({ arriba: 10, abajo: 50, derecha: 20, izquierda: 50 });
+const margen = ref({ arriba: 10, abajo: 50, derecha: 10, izquierda: 55 });
 const alto = ref(0),
   ancho = ref(0),
   alto_ = ref();
@@ -90,13 +91,6 @@ const simulacionCSP = ref();
 const radio_nodos = ref(1);
 const datos_apilados = ref(),
   data_full = ref([{}]),
-  categoria_seleccionada = ref("DESCRIPCION_POSITIVA"),
-  categorias = ref([
-    { id: "DESCRIPCION_ESTEREOTIPO_GENERAL" },
-    { id: "DESCRIPCION_POSITIVA" },
-    { id: "DESCRIPCION_NEGATIVA" },
-    { id: "DESCRIPCION_ENFOQUE" },
-  ]),
   nodataJAM = ref([{ FECHA_TESTIGO: "" }]),
   nodataCSP = ref([{ FECHA_TESTIGO: "" }]),
   nodataBXGR = ref([{ FECHA_TESTIGO: "" }]);
@@ -130,17 +124,27 @@ onMounted(() => {
     //lasValoraciones.value = formateaDataValoraciones();
     creaVis();
   });
-  watch(categoria_seleccionada, () => {
-    creaFuerzas();
-  });
+  watch(
+    () => props.categoria,
+    () => {
+      creaFuerzas();
+    }
+  );
   window.addEventListener("resize", reescalanding);
 });
 onUnmounted(() => {
   window.removeEventListener("resize", reescalanding);
 });
 function reescalanding() {
-  calculaDimensiones();
-  creaVis();
+  if (
+    ancho.value !=
+    contenedor.value.node().clientWidth -
+      margen.value.derecha -
+      margen.value.izquierda
+  ) {
+    calculaDimensiones();
+    creaVis();
+  }
 }
 function calculaDimensiones() {
   ancho.value =
@@ -189,18 +193,17 @@ function creaVis() {
   creaAreas();
   creaBarras();
   creaFuerzas();
-
 }
 function creaFuerzas() {
   radio_nodos.value = Math.sqrt(ancho.value * 0.01);
-  let nodata = datos.value.filter((d) => d[categoria_seleccionada.value]);
+  let nodata = datos.value.filter((d) => d[props.categoria]);
   {
     nodataJAM.value = nodata.filter((d) => d.CANDIDATO == "JAM");
-    
+
     simulacionJAM.value?.stop();
     nodataJAM.value.forEach((d) => {
-      d.x = escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
-      d.y = 500 * (0.5 - Math.random());
+      d.x = 200 * (.5-Math.random()) +escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
+      d.y = 700 * (0.5 - Math.random());
     });
     grupoJAM.value
       .selectAll("g.nodo")
@@ -214,7 +217,7 @@ function creaFuerzas() {
             .attr(
               "transform",
               (d) =>
-                `translate(${escalaTemporal.value(
+                `translate(${ 200 * (1-Math.random())+ escalaTemporal.value(
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
@@ -228,18 +231,18 @@ function creaFuerzas() {
             .on("mouseout", outNodo);
         },
         (update) => {
-       
-          let gpo = update.call(update_=>{
-            update_ .attr(
+          let gpo = update.call((update_) => {
+            update_.attr(
               "transform",
               (d) =>
                 `translate(${escalaTemporal.value(
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
-            )
-          })
-           
-          gpo.select("circle")
+            );
+          });
+
+          gpo
+            .select("circle")
             .on("mouseover", hoverNodo)
             .on("mouseout", outNodo)
 
@@ -256,6 +259,8 @@ function creaFuerzas() {
             .classed("nodo", false)
             .interrupt()
             .transition()
+            .delay((d, i) => Math.round(i / 2))
+
             .duration(500)
             .attr("transform", () => {
               let x = Math.random() < 0.5 ? -100 : ancho.value + 100,
@@ -282,13 +287,14 @@ function creaFuerzas() {
         )
       )
       .force("y", forceY().y(0).strength(0.1))
-      .on("tick", tickedJAM).restart();
+      .on("tick", tickedJAM)
+      .restart();
   }
   {
     nodataBXGR.value = nodata.filter((d) => d.CANDIDATO == "BXGR");
     nodataBXGR.value.forEach((d) => {
-      d.x = escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
-      d.y = 500 * (0.5 - Math.random());
+      d.x = 200 * (.5-Math.random()) +escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
+      d.y = 700 * (0.5 - Math.random());
     });
     simulacionBXGR.value?.stop();
     grupoBXGR.value
@@ -303,7 +309,7 @@ function creaFuerzas() {
             .attr(
               "transform",
               (d) =>
-                `translate(${escalaTemporal.value(
+                `translate(${ 200 * (1-Math.random())+ escalaTemporal.value(
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
@@ -343,6 +349,7 @@ function creaFuerzas() {
             .classed("nodo", false)
             .interrupt()
             .transition()
+            .delay((d, i) => Math.round(i / 2))
 
             .duration(500)
             .attr("transform", () => {
@@ -370,13 +377,14 @@ function creaFuerzas() {
         )
       )
       .force("y", forceY().y(0).strength(0.1))
-      .on("tick", tickedBXGR).restart();
+      .on("tick", tickedBXGR)
+      .restart();
   }
   {
     nodataCSP.value = nodata.filter((d) => d.CANDIDATO == "CSP");
     nodataCSP.value.forEach((d) => {
-      d.x = escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
-      d.y = 500 * (0.5 - Math.random());
+      d.x = 200 * (.5-Math.random()) +escalaTemporal.value(conversionTemporal(d.FECHA_TESTIGO));
+      d.y = 700 * (0.5 - Math.random());
     });
     simulacionCSP.value?.stop();
     grupoCSP.value
@@ -391,7 +399,7 @@ function creaFuerzas() {
             .attr(
               "transform",
               (d) =>
-                `translate(${escalaTemporal.value(
+                `translate(${ 200 * (1-Math.random())+ escalaTemporal.value(
                   conversionTemporal(d.FECHA_TESTIGO)
                 )},${Math.random()})`
             )
@@ -431,6 +439,7 @@ function creaFuerzas() {
             .classed("nodo", false)
             .interrupt()
             .transition()
+            .delay((d, i) => Math.round(i / 2))
 
             .duration(500)
             .attr("transform", () => {
@@ -459,7 +468,8 @@ function creaFuerzas() {
       )
       .force("y", forceY().y(0).strength(0.1))
 
-      .on("tick", tickedCSP).restart();
+      .on("tick", tickedCSP)
+      .restart();
   }
 }
 function tickedJAM() {
@@ -484,14 +494,16 @@ function hoverNodo(e, d) {
   globo.value
     .style("visibility", "visible")
     .style("left", x + "px")
-    .style("top", e.layerY + 10 + "px")
-    .html(`<p><b>${medios[d.ID_NOTICIERO]}</b><br/>${d.FECHA_TESTIGO} |${Math.round(10 * d.DURACION_MINUTOS)/10} minutos </p>
-    <p>${d[categoria_seleccionada.value]}</p>`);
+    .style("top", e.layerY + 10 + "px").html(`<p><b>${
+    medios[d.ID_NOTICIERO]
+  }</b><br/>${d.FECHA_TESTIGO} |${
+    Math.round(10 * d.DURACION_MINUTOS) / 10
+  } minutos </p>
+    <p>${d[props.categoria]}</p>`);
 }
 function outNodo() {
   globo.value.style("visibility", "hidden");
   select(this).attr("fill-opacity", ".7");
-
 }
 function formateaDatosTotales() {
   var rellenafechas = fechas
@@ -749,11 +761,6 @@ defineExpose({
 
 <template>
   <div>
-    <select name="categoria" id="categoria" v-model="categoria_seleccionada">
-      <option :value="cat.id" v-for="cat in categorias" :key="cat.id">
-        {{ cat.id }}
-      </option>
-    </select>
     <div class="vis-general contenedor" id="vis-general">
       <div class="globo"></div>
       <svg
@@ -781,6 +788,16 @@ defineExpose({
           class="eje-y-izquierda total"
           :transform="`translate(${margen.izquierda},${margen.arriba + 0})`"
         ></g>
+        <text
+          x="0"
+          y="0"
+          :transform="`translate(${0},${alto * 0.75})rotate(-90)`"
+          dominant-baseline="hanging"
+          text-anchor="middle"
+          style="font-size: 14px"
+        >
+          Minutos
+        </text>
 
         <g
           :transform="`translate(${margen.izquierda},${margen.arriba})`"
@@ -791,6 +808,19 @@ defineExpose({
           :transform="`translate(${margen.izquierda},${alto * 0.3})`"
         ></g>
       </svg>
+      <div class="contenedor-nomenclatura">
+        <span
+          class="vis-nomenclatura"
+          v-for="variable in variables"
+          :key="variable.id"
+        >
+          <span
+            class="figura-variable"
+            :style="{ background: variable.color }"
+          ></span>
+          <span :for="variable.id">{{ variable.nombre }}</span>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -802,9 +832,9 @@ defineExpose({
     backdrop-filter: blur(5px);
     border-radius: 4px;
     z-index: 2s;
-    padding: 4px;
+    padding: 0 8px;
     width: 200px;
-    background-color: #e7e7e769;
+    background-color: #ffffff9a;
     font-size: 14px;
     visibility: hidden;
   }
@@ -812,6 +842,7 @@ defineExpose({
     .vis-linea-ejes {
       stroke-dasharray: 2 2;
       stroke-width: 1px;
+      stroke: rgb(150, 150, 150);
     }
     .vis-linea-base {
       stroke-width: 1px;

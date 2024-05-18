@@ -13,6 +13,13 @@
   --boton-secundario-hover-borde: transparent;
   --boton-secundario-focus-borde:transparent;
   --contenedor-vis-alto-minimo-vis:0;
+  --input-select-svg :url('data:image/svg+xml,\
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\
+      <g fill="%23141414">\
+          <path d="M14.25,25.9,9,20.65l1.05-1.05,4.2,4.2,4.2-4.2,1.05,1.05Z" transform="translate(-2 -10.6)"/>\
+          <rect width="24" height="24" fill="none"/>\
+      </g>\
+  </svg>'); 
 }
 body *:not(a.marca) {
   font-family:"Montserrat", serif;
