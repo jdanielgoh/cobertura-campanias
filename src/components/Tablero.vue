@@ -33,6 +33,9 @@ onMounted(() => {
   datum.value = lista_medios; //.filter(d=>d.ID_NOTICIERO.includes("1"))//.filter(d=>d.ID_NOTICIERO==medio_seleccionado.value);
 
   console.log(medio_seleccionado.value);
+  console.log(
+    [...new Set(lista_medios.map((d) => d.FECHA_TESTIGO))].sort((a, b) => a - b)
+  );
 });
 watch(medio_seleccionado, (nv) => {
   if (nv == "0") {
@@ -54,7 +57,6 @@ function getResultValue(result) {
   return result.nombre;
 }
 function submit(resultado) {
-  console.log(resultado);
   medio_seleccionado.value = resultado.id;
 }
 </script>
@@ -92,20 +94,7 @@ function submit(resultado) {
       }}
     </h2>
     <VisGeneral :datos="datum" :categoria="categoria_seleccionada"></VisGeneral>
-    <p><b>Fuentes</b></p>
-    <ul>
-
-      <li>
-        <strong>
-          <a
-            href="https://monitoreo2024.ine.mx/descargas-informes/"
-            target="_blank"
-            >Monitoreo de programas de radio y televisión que difunden noticias,
-            INE</a
-          >
-        </strong>
-      </li>
-    </ul>
+  
   </div>
 </template>
 
@@ -120,10 +109,13 @@ select#categoria {
   padding-bottom: 10px;
   padding-top: 10px;
 }
+p.inst b {
+  background: rgb(226, 255, 157);
+}
 ul {
   li {
-    strong {
-      background: rgb(196, 250, 101);
+    a {
+      color: #008773;
     }
   }
 }

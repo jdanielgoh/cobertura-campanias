@@ -166,7 +166,7 @@ function calculaDimensiones() {
   escalaTemporal.value = scaleTime()
     .domain([
       conversionTemporal("01/03/2024"),
-      conversionTemporal("05/05/2024"),
+      conversionTemporal("12/05/2024"),
     ])
     .range([0, ancho.value]);
 
@@ -835,7 +835,8 @@ defineExpose({
     padding: 0 8px;
     width: 200px;
     background-color: #ffffff9a;
-    font-size: 14px;
+    font-size: 12px;
+    line-height: 1.2em;
     visibility: hidden;
   }
   svg {
