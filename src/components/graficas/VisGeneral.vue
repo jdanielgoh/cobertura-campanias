@@ -166,7 +166,7 @@ function calculaDimensiones() {
   escalaTemporal.value = scaleTime()
     .domain([
       conversionTemporal("01/03/2024"),
-      conversionTemporal("12/05/2024"),
+      conversionTemporal("19/05/2024"),
     ])
     .range([0, ancho.value]);
 
