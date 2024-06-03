@@ -109,14 +109,5 @@ select#categoria {
   padding-bottom: 10px;
   padding-top: 10px;
 }
-p.inst b {
-  background: rgb(226, 255, 157);
-}
-ul {
-  li {
-    a {
-      color: #008773;
-    }
-  }
-}
+
 </style>
